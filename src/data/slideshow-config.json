@@ -1,0 +1,59 @@
+{
+  "brandColors": {
+    "primary": "#3A3875",
+    "secondary": "#FF6B47", 
+    "text": "#ffffff"
+  },
+  "settings": {
+    "slideDuration": 8,
+    "autoPlay": true
+  },
+  "slides": [
+    {
+      "type": "content",
+      "title": "Welcome to Basingstoke Repair Network",
+      "subtitle": "Fixing things together, building community",
+      "gradientDirection": "primary-to-secondary"
+    },
+    {
+      "type": "content", 
+      "title": "Repair Cafes",
+      "subtitle": "Bring your broken items and learn to fix them with our volunteers",
+      "gradientDirection": "secondary-to-primary"
+    },
+    {
+      "type": "content",
+      "title": "Community Events", 
+      "subtitle": "Join us for workshops, talks, and repair sessions",
+      "gradientDirection": "primary-to-secondary"
+    },
+    {
+      "type": "iframe",
+      "url": "https://example.com",
+      "frameTitle": "Repair Cafe - Live Stats"
+    },
+    {
+      "type": "content",
+      "title": "Volunteer With Us",
+      "subtitle": "Share your skills and help others in the community", 
+      "gradientDirection": "secondary-to-primary"
+    },
+    {
+      "type": "content",
+      "title": "Sustainability Focus",
+      "subtitle": "Reducing waste by extending the life of everyday items",
+      "gradientDirection": "primary-to-secondary"
+    },
+    {
+      "type": "content",
+      "title": "Learn & Share",
+      "subtitle": "Discover new skills while helping your neighbors",
+      "gradientDirection": "secondary-to-primary"
+    },
+    {
+      "type": "iframe", 
+      "url": "https://example.com",
+      "frameTitle": "Repair Cafe - Live Stats"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "BRN Repair Slideshow",
+  "short_name": "BRN Slideshow",
+  "description": "Basingstoke Repair Network interactive slideshow with navigation controls",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#374151",
+  "theme_color": "#ea580c",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["utilities", "business"],
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  },
+  "display_override": ["fullscreen", "standalone"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Start Slideshow",
+      "short_name": "Start",
+      "description": "Start the repair network slideshow",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

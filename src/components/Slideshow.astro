@@ -1,0 +1,283 @@
+---
+import configData from '../data/slideshow-config.json';
+
+const { brandColors, settings, slides: configSlides } = configData;
+
+// Generate background styles based on configuration
+const slides = configSlides.map(slide => {
+  if (slide.type === 'content') {
+    const fromColor = slide.gradientDirection === 'primary-to-secondary' ? brandColors.primary : brandColors.secondary;
+    const toColor = slide.gradientDirection === 'primary-to-secondary' ? brandColors.secondary : brandColors.primary;
+    return {
+      ...slide,
+      background: `bg-gradient-to-br from-[${fromColor}] to-[${toColor}]`
+    };
+  }
+  return slide;
+});
+---
+
+<div id="slideshow-container" class="w-full h-screen relative overflow-hidden" 
+     style={`background-color: ${brandColors.primary}`}
+     data-primary-color={brandColors.primary}
+     data-secondary-color={brandColors.secondary}
+     data-text-color={brandColors.text}
+     data-slide-duration={settings.slideDuration}
+     data-auto-play={settings.autoPlay}>
+  {slides.map((slide, index) => (
+    <div 
+      class={`slide absolute inset-0 transition-opacity duration-1000 ${index === 0 ? 'opacity-100' : 'opacity-0'} ${slide.type === 'content' ? slide.background : ''}`}
+      style={slide.type === 'iframe' ? `background-color: ${brandColors.primary}` : ''}
+      data-slide={index}
+    >
+      {slide.type === 'content' ? (
+        <div class="flex items-center justify-center h-full text-center p-8 md:p-16">
+          <div class="max-w-6xl w-full">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 md:mb-8 drop-shadow-2xl leading-tight" style={`color: ${brandColors.text}`}>
+              {slide.title}
+            </h1>
+            <p class="text-xl md:text-3xl lg:text-4xl max-w-5xl mx-auto leading-relaxed" style={`color: ${brandColors.text}`}>
+              {slide.subtitle}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <iframe 
+          src={slide.url}
+          class="w-full h-full border-0"
+          title={slide.frameTitle || slide.title}
+          sandbox="allow-scripts allow-same-origin allow-forms"
+        ></iframe>
+      )}
+    </div>
+  ))}
+  
+  <!-- Toolbar -->
+  <div id="toolbar" class="absolute top-4 right-4 bg-black/50 rounded-lg p-3 flex items-center space-x-3 transition-opacity duration-300 opacity-0 hover:opacity-100">
+    <button id="prev-btn" class="text-white p-2 rounded transition-colors" style={`background-color: ${brandColors.secondary}`}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+    
+    <button id="play-pause-btn" class="text-white p-2 rounded transition-colors" style={`background-color: ${brandColors.secondary}`}>
+      <svg id="pause-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <svg id="play-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </button>
+    
+    <button id="next-btn" class="text-white p-2 rounded transition-colors" style={`background-color: ${brandColors.secondary}`}>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    </button>
+    
+    <div class="text-sm font-medium" style={`color: ${brandColors.text}`}>
+      <span id="current-slide">1</span> / <span id="total-slides">{slides.length}</span>
+    </div>
+  </div>
+  
+  <!-- Progress indicators -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
+    {slides.map((_, index) => (
+      <button 
+        class="indicator w-3 h-3 rounded-full transition-all duration-300 hover:scale-125"
+        style={index === 0 ? `background-color: ${brandColors.secondary}` : `background-color: rgba(255,255,255,0.3)`}
+        data-indicator={index}
+      ></button>
+    ))}
+  </div>
+  
+  <!-- Progress bar -->
+  <div class="absolute bottom-0 left-0 w-full h-1" style={`background-color: ${brandColors.primary}`}>
+    <div id="progress-bar" class="h-full transition-all duration-100 ease-linear" style={`width: 0%; background-color: ${brandColors.secondary}`}></div>
+  </div>
+</div>
+
+<style>
+  #slideshow-container button:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+  
+  .indicator:hover {
+    transform: scale(1.25);
+    opacity: 0.8;
+  }
+</style>
+
+<script define:vars={{ brandColors, settings }}>
+  class Slideshow {
+    constructor() {
+      this.slides = document.querySelectorAll('.slide');
+      this.indicators = document.querySelectorAll('.indicator');
+      this.currentSlide = 0;
+      this.totalSlides = this.slides.length;
+      this.slideInterval = settings.slideDuration * 1000;
+      this.isPlaying = settings.autoPlay;
+      this.intervalId = null;
+      this.progressInterval = null;
+      this.startTime = Date.now();
+      
+      this.init();
+    }
+    
+    init() {
+      this.setupEventListeners();
+      this.startSlideshow();
+      this.showToolbarOnMouseMove();
+      this.updateProgressBar();
+    }
+    
+    setupEventListeners() {
+      // Toolbar buttons
+      document.getElementById('prev-btn').addEventListener('click', () => this.prevSlide());
+      document.getElementById('next-btn').addEventListener('click', () => this.nextSlide());
+      document.getElementById('play-pause-btn').addEventListener('click', () => this.togglePlayPause());
+      
+      // Indicator clicks
+      this.indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => this.goToSlide(index));
+      });
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        switch(e.key) {
+          case 'ArrowLeft':
+            this.prevSlide();
+            break;
+          case 'ArrowRight':
+            this.nextSlide();
+            break;
+          case ' ':
+          case 'Enter':
+            this.togglePlayPause();
+            e.preventDefault();
+            break;
+          case 'Escape':
+            // Allow escape to exit fullscreen
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            }
+            break;
+          default:
+            return;
+        }
+        e.preventDefault();
+      });
+    }
+    
+    showToolbarOnMouseMove() {
+      const toolbar = document.getElementById('toolbar');
+      let hideTimeout;
+      
+      const showToolbar = () => {
+        toolbar.classList.remove('opacity-0');
+        toolbar.classList.add('opacity-100');
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+          toolbar.classList.remove('opacity-100');
+          toolbar.classList.add('opacity-0');
+        }, 3000);
+      };
+      
+      document.addEventListener('mousemove', showToolbar);
+      document.addEventListener('touchstart', showToolbar);
+      
+      // Show toolbar initially
+      showToolbar();
+    }
+    
+    updateProgressBar() {
+      if (!this.isPlaying) return;
+      
+      const elapsed = Date.now() - this.startTime;
+      const progress = (elapsed / this.slideInterval) * 100;
+      
+      document.getElementById('progress-bar').style.width = `${Math.min(progress, 100)}%`;
+      
+      if (progress >= 100) {
+        this.nextSlide();
+      } else {
+        requestAnimationFrame(() => this.updateProgressBar());
+      }
+    }
+    
+    showSlide(index) {
+      // Hide all slides
+      this.slides.forEach(slide => {
+        slide.classList.remove('opacity-100');
+        slide.classList.add('opacity-0');
+      });
+      
+      // Update indicators
+      this.indicators.forEach(indicator => {
+        indicator.style.backgroundColor = 'rgba(255,255,255,0.3)';
+      });
+      
+      // Show current slide
+      this.slides[index].classList.remove('opacity-0');
+      this.slides[index].classList.add('opacity-100');
+      
+      // Update current indicator
+      this.indicators[index].style.backgroundColor = brandColors.secondary;
+      
+      this.currentSlide = index;
+      
+      // Update slide counter
+      document.getElementById('current-slide').textContent = index + 1;
+      
+      // Reset progress
+      this.startTime = Date.now();
+      document.getElementById('progress-bar').style.width = '0%';
+      
+      if (this.isPlaying) {
+        this.updateProgressBar();
+      }
+    }
+    
+    nextSlide() {
+      const nextIndex = (this.currentSlide + 1) % this.totalSlides;
+      this.showSlide(nextIndex);
+    }
+    
+    prevSlide() {
+      const prevIndex = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+      this.showSlide(prevIndex);
+    }
+    
+    goToSlide(index) {
+      this.showSlide(index);
+    }
+    
+    togglePlayPause() {
+      this.isPlaying = !this.isPlaying;
+      
+      const playIcon = document.getElementById('play-icon');
+      const pauseIcon = document.getElementById('pause-icon');
+      
+      if (this.isPlaying) {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+        this.startTime = Date.now();
+        this.updateProgressBar();
+      } else {
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+      }
+    }
+    
+    startSlideshow() {
+      this.showSlide(0);
+    }
+  }
+  
+  // Initialize slideshow when DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    new Slideshow();
+  });
+</script>

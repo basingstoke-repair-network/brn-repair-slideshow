@@ -1,0 +1,93 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  - name: "config"
+    label: "Site Configuration"
+    files:
+      - name: "slideshow"
+        label: "Slideshow Configuration"
+        file: "src/data/slideshow-config.json"
+        fields:
+          - label: "Brand Colors"
+            name: "brandColors"
+            widget: "object"
+            fields:
+              - label: "Primary Color (Navy Blue)"
+                name: "primary"
+                widget: "color"
+                default: "#3A3875"
+                hint: "Main brand color used for backgrounds and primary elements"
+              - label: "Secondary Color (Coral Orange)" 
+                name: "secondary"
+                widget: "color"
+                default: "#FF6B47"
+                hint: "Accent color used for buttons, progress bar, and highlights"
+              - label: "Text Color"
+                name: "text"
+                widget: "color"
+                default: "#ffffff"
+                hint: "Color for slide text content"
+          - label: "Slideshow Settings"
+            name: "settings"
+            widget: "object"
+            fields:
+              - label: "Slide Duration (seconds)"
+                name: "slideDuration"
+                widget: "number"
+                default: 8
+                min: 3
+                max: 30
+                hint: "How long each slide displays before auto-advancing"
+              - label: "Enable Auto-play"
+                name: "autoPlay"
+                widget: "boolean"
+                default: true
+                hint: "Whether slideshow automatically advances"
+          - label: "Slides"
+            name: "slides"
+            widget: "list"
+            fields:
+              - label: "Slide Type"
+                name: "type"
+                widget: "select"
+                options: ["content", "iframe"]
+                default: "content"
+              - label: "Title"
+                name: "title"
+                widget: "string"
+                condition:
+                  field: "type"
+                  value: "content"
+              - label: "Subtitle" 
+                name: "subtitle"
+                widget: "text"
+                condition:
+                  field: "type"
+                  value: "content"
+              - label: "Background Gradient Direction"
+                name: "gradientDirection"
+                widget: "select"
+                options: 
+                  - { label: "Primary to Secondary", value: "primary-to-secondary" }
+                  - { label: "Secondary to Primary", value: "secondary-to-primary" }
+                default: "primary-to-secondary"
+                condition:
+                  field: "type"
+                  value: "content"
+              - label: "URL"
+                name: "url"
+                widget: "string"
+                condition:
+                  field: "type"
+                  value: "iframe"
+              - label: "Frame Title"
+                name: "frameTitle"
+                widget: "string"
+                condition:
+                  field: "type"
+                  value: "iframe"

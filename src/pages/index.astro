@@ -1,0 +1,72 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Slideshow from '../components/Slideshow.astro';
+---
+
+<Layout title="BRN Repair Slideshow">
+  <Slideshow />
+</Layout>
+
+<script>
+  // PWA and fullscreen configurations
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add fullscreen button functionality
+    const addFullscreenToggle = () => {
+      const toolbar = document.getElementById('toolbar');
+      if (toolbar && !document.getElementById('fullscreen-btn')) {
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.id = 'fullscreen-btn';
+        fullscreenBtn.className = 'bg-orange-600 hover:bg-orange-700 text-white p-2 rounded transition-colors';
+        fullscreenBtn.innerHTML = `
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+          </svg>
+        `;
+        
+        fullscreenBtn.addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+          } else {
+            document.exitFullscreen();
+          }
+        });
+        
+        toolbar.insertBefore(fullscreenBtn, toolbar.lastElementChild);
+      }
+    };
+    
+    // Wait for slideshow to initialize, then add fullscreen button
+    setTimeout(addFullscreenToggle, 100);
+    
+    // Keep screen awake (Screen Wake Lock API)
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').catch(err => {
+        console.log('Wake lock failed:', err);
+      });
+    }
+    
+    // Handle fullscreen change events
+    document.addEventListener('fullscreenchange', () => {
+      const toolbar = document.getElementById('toolbar');
+      if (document.fullscreenElement) {
+        // In fullscreen mode - hide cursor after inactivity
+        let cursorTimeout;
+        const hideCursor = () => {
+          document.body.style.cursor = 'none';
+        };
+        
+        const showCursor = () => {
+          document.body.style.cursor = 'default';
+          clearTimeout(cursorTimeout);
+          cursorTimeout = setTimeout(hideCursor, 3000);
+        };
+        
+        document.addEventListener('mousemove', showCursor);
+        showCursor(); // Start the timer
+      } else {
+        // Not in fullscreen - show cursor normally
+        document.body.style.cursor = 'default';
+      }
+    });
+  });
+</script>
