@@ -29,8 +29,8 @@
     },
     {
       "type": "iframe",
-      "url": "https://example.com",
-      "frameTitle": "Repair Cafe - Live Stats"
+      "url": "https://basingstoke.repair",
+      "frameTitle": "BRN Website"
     },
     {
       "type": "content",
@@ -49,11 +49,6 @@
       "title": "Learn & Share",
       "subtitle": "Discover new skills while helping your neighbors",
       "gradientDirection": "secondary-to-primary"
-    },
-    {
-      "type": "iframe", 
-      "url": "https://example.com",
-      "frameTitle": "Repair Cafe - Live Stats"
     }
   ]
 }
